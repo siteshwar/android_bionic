@@ -90,10 +90,35 @@ static soinfo* sonext = &libdl_info;
 static soinfo* somain; /* main process, always the one after libdl_info */
 
 static const char* const gSoPaths[] = {
+  "/usr/libexec/droid-hybris/system/lib",
   "/vendor/lib",
   "/system/lib",
   NULL
 };
+
+static void parse_library_path(const char *path, char *delim)
+{
+    size_t len;
+    char *ldpaths_bufp = ldpaths_buf;
+    int i = 0;
+
+    len = strlcpy(ldpaths_buf, path, sizeof(ldpaths_buf));
+
+    while (i < LDPATH_MAX && (ldpaths[i] = strsep(&ldpaths_bufp, delim))) {
+        if (*ldpaths[i] != '\0')
+            ++i;
+    }
+
+    /* Forget the last path if we had to truncate; this occurs if the 2nd to
+     * last char isn't '\0' (i.e. not originally a delim). */
+    if (i > 0 && len >= sizeof(ldpaths_buf) &&
+            ldpaths_buf[sizeof(ldpaths_buf) - 2] != '\0') {
+        ldpaths[i - 1] = NULL;
+    } else {
+        ldpaths[i] = NULL;
+    }
+}
+
 
 static char gLdPathsBuffer[LDPATH_BUFSIZE];
 static const char* gLdPaths[LDPATH_MAX + 1];
@@ -689,6 +714,11 @@ static int open_library(const char* name) {
       return fd;
     }
     // ...but nvidia binary blobs (at least) rely on this behavior, so fall through for now.
+  }
+  // This allows us to run android apps in a Mer rootfs
+  if (getenv("HYBRIS_LD_LIBRARY_PATH") != NULL && *ldpaths == 0)
+  {
+    parse_library_path(getenv("HYBRIS_LD_LIBRARY_PATH"), ":");
   }
 
   // Otherwise we try LD_LIBRARY_PATH first, and fall back to the built-in well known paths.
