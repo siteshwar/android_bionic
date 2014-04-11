@@ -913,6 +913,7 @@ include $(CLEAR_VARS)
 LOCAL_CFLAGS := $(libc_common_cflags) -std=gnu99 -DPTHREAD_DEBUG -DPTHREAD_DEBUG_ENABLED=0
 LOCAL_C_INCLUDES := $(libc_common_c_includes)
 
+LOCAL_LDFLAGS := -Wl,--no-fatal-warnings
 LOCAL_SRC_FILES := \
 	$(libc_arch_dynamic_src_files) \
 	$(libc_static_common_src_files) \
