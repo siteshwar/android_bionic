@@ -96,30 +96,6 @@ static const char* const gSoPaths[] = {
   NULL
 };
 
-static void parse_library_path(const char *path, char *delim)
-{
-    size_t len;
-    char *ldpaths_bufp = ldpaths_buf;
-    int i = 0;
-
-    len = strlcpy(ldpaths_buf, path, sizeof(ldpaths_buf));
-
-    while (i < LDPATH_MAX && (ldpaths[i] = strsep(&ldpaths_bufp, delim))) {
-        if (*ldpaths[i] != '\0')
-            ++i;
-    }
-
-    /* Forget the last path if we had to truncate; this occurs if the 2nd to
-     * last char isn't '\0' (i.e. not originally a delim). */
-    if (i > 0 && len >= sizeof(ldpaths_buf) &&
-            ldpaths_buf[sizeof(ldpaths_buf) - 2] != '\0') {
-        ldpaths[i - 1] = NULL;
-    } else {
-        ldpaths[i] = NULL;
-    }
-}
-
-
 static char gLdPathsBuffer[LDPATH_BUFSIZE];
 static const char* gLdPaths[LDPATH_MAX + 1];
 
@@ -127,6 +103,29 @@ static char gLdPreloadsBuffer[LDPRELOAD_BUFSIZE];
 static const char* gLdPreloadNames[LDPRELOAD_MAX + 1];
 
 static soinfo* gLdPreloads[LDPRELOAD_MAX + 1];
+
+static void parse_library_path(const char *path, const char *delim)
+{
+    size_t len;
+    char *ldpaths_bufp = gLdPathsBuffer;
+    int i = 0;
+
+    len = strlcpy(gLdPathsBuffer, path, sizeof(gLdPathsBuffer));
+
+    while (i < LDPATH_MAX && (gLdPaths[i] = strsep(&ldpaths_bufp, delim))) {
+        if (*gLdPaths[i] != '\0')
+            ++i;
+    }
+
+    /* Forget the last path if we had to truncate; this occurs if the 2nd to
+     * last char isn't '\0' (i.e. not originally a delim). */
+    if (i > 0 && len >= sizeof(gLdPathsBuffer) &&
+            gLdPathsBuffer[sizeof(gLdPathsBuffer) - 2] != '\0') {
+        gLdPaths[i - 1] = NULL;
+    } else {
+        gLdPaths[i] = NULL;
+    }
+}
 
 __LIBC_HIDDEN__ int gLdDebugVerbosity;
 
@@ -716,7 +715,7 @@ static int open_library(const char* name) {
     // ...but nvidia binary blobs (at least) rely on this behavior, so fall through for now.
   }
   // This allows us to run android apps in a Mer rootfs
-  if (getenv("HYBRIS_LD_LIBRARY_PATH") != NULL && *ldpaths == 0)
+  if (getenv("HYBRIS_LD_LIBRARY_PATH") != NULL && *gLdPaths == 0)
   {
     parse_library_path(getenv("HYBRIS_LD_LIBRARY_PATH"), ":");
   }

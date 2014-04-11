@@ -1,3 +1,4 @@
+
 LOCAL_PATH:= $(call my-dir)
 
 include $(LOCAL_PATH)/arch-$(TARGET_ARCH)/syscalls.mk
@@ -230,7 +231,7 @@ libc_bionic_src_files := \
     bionic/sbrk.cpp \
     bionic/scandir.cpp \
     bionic/sched_getaffinity.cpp \
-    bionic/__set_errno.cpp \
+    bionic/__set_errno.c \
     bionic/setlocale.cpp \
     bionic/signalfd.cpp \
     bionic/sigwait.cpp \
@@ -714,8 +715,8 @@ LOCAL_SRC_FILES := \
 	$(libc_static_common_src_files) \
 	bionic/dlmalloc.c \
 	bionic/malloc_debug_common.cpp \
-	bionic/__set_errno.cpp \
-	hybris/libdsyscalls.cpp
+	bionic/__set_errno.c \
+	hybris/libdsyscalls.c
 
 LOCAL_C_INCLUDES := $(libc_common_c_includes)
 LOCAL_CFLAGS := $(libc_common_cflags)
@@ -881,7 +882,7 @@ include $(CLEAR_VARS)
 LOCAL_SRC_FILES := \
 	$(libc_arch_static_src_files) \
 	$(libc_static_common_src_files) \
-	bionic/__set_errno.cpp \
+	bionic/__set_errno.c \
 	bionic/dlmalloc.c \
 	bionic/malloc_debug_common.cpp \
 	bionic/libc_init_static.cpp
@@ -915,7 +916,7 @@ LOCAL_C_INCLUDES := $(libc_common_c_includes)
 LOCAL_SRC_FILES := \
 	$(libc_arch_dynamic_src_files) \
 	$(libc_static_common_src_files) \
-	bionic/__set_errno.cpp \
+	bionic/__set_errno.c \
 	bionic/dlmalloc.c \
 	bionic/malloc_debug_common.cpp \
 	bionic/pthread_debug.cpp \
